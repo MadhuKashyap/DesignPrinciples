@@ -1,0 +1,437 @@
+
+								Design Principles
+
+
+
+Single Responsibility Principle
+
+It states that all classes and modules should have only 1 well-defined responsibility so that a class should have one, and only one reason to change
+
+This means when we design our classes, we need to ensure that our class is responsible only for 1 task or functionality so that when there is a change in that task/functionality, only then, that class should change.
+
+Benefits of Single Responsibility Principle
+When an application has multiple classes, each of them following this principle, then the applicable becomes more maintainable, easier to understand.
+
+The code quality of the application is better, thereby having fewer defects.
+
+Onboarding new members are easy, and they can start contributing much faster.
+
+Testing and writing test cases is much simpler
+
+Lets consider a simple order delivery system
+
+
+public class Main {
+    public static void main(String[] args) {
+        Customer cust = new Customer();
+        cust.setName("mannu");
+        cust.setPincode(827009);
+        Order order =new Order(cust, 1, "pizza",2);
+        BillCalculation b = new BillCalculation(order);
+        b.calcBill();
+        DeliveryApp d = new DeliveryApp(order);
+        d.deliverOrder();
+    }
+}
+public class Customer {
+    String name;
+    int pincode;
+
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public int getPincode() {
+        return pincode;
+    }
+
+    public void setPincode(int pincode) {
+        this.pincode = pincode;
+    }
+}
+
+
+
+public class BillCalculation {
+    Order order;
+    public BillCalculation(Order order)
+    {
+        this.order = order;
+    }
+    public void calcBill()
+    {
+        Random rand = new Random();
+        double totalAmt = rand.nextInt(200) * this.order.getQty(); //using random function to generate price of item x
+        order.setBill(totalAmt);
+    }
+}
+
+
+
+
+public class DeliveryApp {
+    Order order;
+    public DeliveryApp(Order order)
+    {
+        this.order = order;
+    }
+    public void deliverOrder()
+    {
+        System.out.println("Currently delivering order of " + order.getFoodItem() + "ordered by "+ order.getCust().getName());
+    }
+}
+
+Here, each class is implementing only 1 functionality. Suppose calcBill() and deliveryOrder() were in same class and we needed to change either the bill calculation logic or food delivery logic, in either cases the class will be affected
+
+Open-Close Principle
+The principle states that software entities like class, modules, functions, etc.; should be able to extend a class behavior without modifying it. 
+This principle believes that “ do not change the well-tested code every time requirements change” . Any changes in a code can lead to some unexpected errors in the future. A code that was working til yesterday can throw errors tomorrow.
+
+Let’s consider a class that calculates sum of volumes of few cuboids
+
+public class Cuboid {
+    int length;
+    int breadth;
+    int height;
+}
+
+
+
+public class AddVolume {
+    int volume;
+    public int AddVolume(Cuboid c[])
+    {
+        volume = 0;
+        for(Cuboid cb : c)
+        {
+            volume += (cb.getLength() * cb.getBreadth() * cb.getHeight());
+        }
+        return volume;
+    }
+}
+
+public static void main(String[] args) {
+    Cuboid c1 = new Cuboid(10,12,12);
+    Cuboid c2 = new Cuboid(10,11,12);
+    Cuboid c3 = new Cuboid(10,13,12);
+    Cuboid c[] = new Cuboid[3];
+    c[0] = c1;
+    c[1] = c2;
+    c[2] = c3;
+    AddVolume ad = new AddVolume(c);
+}
+
+Now if we want to include 1 more shape sphere whose volume we want to add
+public class Cuboid {
+    int length;
+    int breadth;
+    int height;
+    public Cuboid(int length, int breadth, int height) {
+    this.length = length;
+    this.breadth = breadth;
+    this.height = height;
+}
+
+}
+
+Public class Sphere
+{
+    int radius;
+    Sphere(int radius)
+    {
+	radius = radius;
+    }
+}
+
+
+public class AddVolume {
+    int volume;
+    public int AddVolume(Cuboid c[], Sphere s[])
+    {
+        volume = 0;
+        for(Cuboid cb : c)
+        {
+            volume += (cb.getLength() * cb.getBreadth() * cb.getHeight());
+        }
+     
+        for(Sphere sb : s)
+        {
+            volume += 4/3 * pi * (sb.getRadius() * sb.getRadius() * sb.getRadius());
+        }
+
+        return volume;
+    }
+}
+
+public static void main(String[] args) {
+    Cuboid c1 = new Cuboid(10,12,12);
+    Cuboid c2 = new Cuboid(10,11,12);
+    Cuboid c3 = new Cuboid(10,13,12);
+    Cuboid c[] = new Cuboid[3];
+
+    Sphere s1 = new Sphere(1);
+    Sphere s1 = new Sphere(2);
+    Sphere s1 = new Sphere(3);
+    Sphere s[] = new Sphere[3];
+
+    c[0] = c1;
+    c[1] = c2;
+    c[2] = c3;
+
+    s[0] =s1;
+    s[1] =s2;
+   s[2] = s3;
+    AddVolume ad = new AddVolume(c, s);
+}
+
+
+We has to change code of AddVolume class to accommodate new Changes. Let’s see how that could be done with Open-close principle
+
+Public interface GeoShape
+{
+	public abstract double get_volume();
+}
+
+public class Cuboid implements GeoShape{
+    int length;
+    int breadth;
+    int height;
+    public Cuboid(int length, int breadth, int height) {
+    	this.length = length;
+   	 this.breadth = breadth;
+    	this.height = height;
+     }
+
+	public double get_volume()
+	{
+		return length * breadth * height;
+	}
+
+}	
+
+Public class Sphere implements GeoShape
+{
+    int radius;
+    Sphere(int radius)
+    {
+	radius = radius;
+    }
+	public double get_volume()
+	{
+		return 4/3 * pi * r*r*r;
+	}
+
+}
+
+public class AddVolume {
+    int volume;
+    public int AddVolume(GeoShape c[])
+    {
+        volume = 0;
+        for(GeoShape cb : c)
+        {
+            volume += cb.getVolume();
+        }
+        return volume;
+    }
+}
+
+public static void main(String[] args) {
+    Cuboid c1 = new Cuboid(10,12,12);
+    Cuboid c2 = new Cuboid(10,11,12);
+    Cuboid c3 = new Cuboid(10,13,12);
+  
+    Sphere s1 = new Sphere(1);
+    Sphere s1 = new Sphere(2);
+    Sphere s1 = new Sphere(3);
+
+ GeoShape g []= new GeoShape[6];	
+
+    g[0] = c1;
+    g[1] = c2;
+    g[2] = c3;
+
+    g[0] =s1;
+    g[1] =s2;
+   g[2] = s3;
+    AddVolume ad = new AddVolume(g);
+}
+
+
+Liskov’s Substitution Principle: 
+
+according to this principle “Derived or child classes must be substitutable for their base or parent classes“. This principle ensures that any class that is the child of a parent class should be usable in place of its parent without any unexpected behavior.
+
+You can understand it in a way that a farmer’s son should inherit farming skills from his father and should be able to replace his father if needed.
+
+public class Bird{
+    public void fly(){}
+}
+public class Duck extends Bird{
+
+}
+
+public class Ostrich extends Bird{
+
+}
+
+Ostrich is a bird, but it can't fly, Ostrich class is a subtype of class Bird, but it shouldn't be able to use the fly method, that means we are breaking the LSP principle. We should rather design like this
+
+public class Bird{
+
+}
+public class FlyingBirds extends Bird{
+    public void fly(){}
+}
+public class Duck extends FlyingBirds{
+
+}
+public class Ostrich extends Bird{
+
+} 
+
+
+4. Interface Segregation Principle: 
+
+This principle is the first principle that applies to Interfaces instead of classes
+It states that “do not force any client to implement an interface which is irrelevant to them“.Rather break down a fat interface with many implementations into n small interfaces with 1 implementation each
+
+Suppose if you enter a restaurant and you are pure vegetarian. The waiter in that restaurant gave you the menu card which includes vegetarian items, non-vegetarian items, drinks, and sweets. In this case, as a customer, you should have a menu card which includes only vegetarian items, not everything which you don’t eat in your food. Here the menu should be different for different types of customers.
+
+Let’s understand it with an example
+
+
+public interface Payment { 
+    void initiatePayments();
+    Object status();
+    List<Object> getPayments();
+    Void initiateLoanSettlement();
+    initiateRePayment();
+}
+
+
+public class BankPayment implements Payment {
+
+    @Override
+    public void initiatePayments() {
+       // ...
+    }
+
+    @Override
+    public Object status() {
+        // ...
+    }
+
+    @Override
+    public List<Object> getPayments() {
+        // ...
+    }
+@Override
+    public void intiateLoanSettlement() {
+        // ...
+    }
+
+    @Override
+    public void initiateRePayment() {
+        // ...
+    }
+
+}
+
+
+public class LoanPayment implements Payment {
+
+    @Override
+    public void initiatePayments() {
+        throw new UnsupportedOperationException("This is not a bank payment");
+    }
+
+    @Override
+    public Object status() {
+        // ...
+    }
+
+    @Override
+    public List<Object> getPayments() {
+        // ...
+    }
+
+    @Override
+    public void intiateLoanSettlement() {
+        // ...
+    }
+
+    @Override
+    public void initiateRePayment() {
+        // ...
+    }
+}
+
+Now all the implementing classes of Payment will have to implement the abstract methods . 
+If we add more methods to Payment , all implementing classes too will be updated, and they will have to implement unnecessary methods for no reason.
+
+
+Rather we can break down Payment into 2 more interfaces with relatable methods
+
+public interface Payment {
+    Object status();
+    List<Object> getPayments();
+}
+
+public interface Bank extends Payment {
+    void initiatePayments();
+}
+
+public interface Loan extends Payment {
+    void intiateLoanSettlement();
+    void initiateRePayment();
+}
+
+
+public class BankPayment implements Bank {
+
+    @Override
+    public void initiatePayments() {
+        // ...
+    }
+
+    @Override
+    public Object status() {
+        // ...
+    }
+
+    @Override
+    public List<Object> getPayments() {
+        // ...
+    }
+}
+
+public class LoanPayment implements Loan {
+
+    @Override
+    public void intiateLoanSettlement() {
+        // ...
+    }
+
+    @Override
+    public void initiateRePayment() {
+        // ...
+    }
+
+    @Override
+    public Object status() {
+        // ...
+    }
+
+    @Override
+    public List<Object> getPayments() {
+        // ...
+    }
+}
+
+
+5. Dependency Inversion Principle: 
+
+High-level modules/classes should not depend on low-level modules/classes. Both should depend upon abstractions, So that your classes are loosely coupled
