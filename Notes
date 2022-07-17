@@ -1,9 +1,10 @@
-
-								Design Principles
-
+Design Principles
 
 
-Single Responsibility Principle
+SOLID design principals
+
+
+							1. Single Responsibility Principle
 
 It states that all classes and modules should have only 1 well-defined responsibility so that a class should have one, and only one reason to change
 
@@ -12,9 +13,8 @@ This means when we design our classes, we need to ensure that our class is respo
 Benefits of Single Responsibility Principle
 When an application has multiple classes, each of them following this principle, then the applicable becomes more maintainable, easier to understand.
 
-The code quality of the application is better, thereby having fewer defects.
+The code quality of the application is better, so it is maintainable and easier to understand.
 
-Onboarding new members are easy, and they can start contributing much faster.
 
 Testing and writing test cases is much simpler
 
@@ -68,6 +68,65 @@ public class BillCalculation {
     }
 }
 
+public class Order {
+    Customer cust;
+    int orderId;
+    String foodItem;
+    int qty;
+    double bill;
+
+    public Order(Customer cust, int orderId, String foodItem, int qty) {
+        this.cust = cust;
+        this.orderId = orderId;
+        this.foodItem = foodItem;
+        this.qty = qty;
+      }
+
+    public Customer getCust() {
+        return cust;
+    }
+
+    public void setCust(Customer cust) {
+        this.cust = cust;
+    }
+
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
+    }
+
+    public String getFoodItem() {
+        return foodItem;
+    }
+
+    public void setFoodItem(String foodItem) {
+        this.foodItem = foodItem;
+    }
+
+    public int getQty() {
+        return qty;
+    }
+
+    public void setQty(int qty) {
+        this.qty = qty;
+    }
+
+    public double getBill() {
+        return bill;
+    }
+
+    public void setBill(double bill) {
+        this.bill = bill;
+    }
+
+    public void prepareOrder()
+    {
+        System.out.println("Order of" + foodItem+"is bieng prepared for customer "+ cust.getName());
+    }
+}
 
 
 
@@ -85,7 +144,7 @@ public class DeliveryApp {
 
 Here, each class is implementing only 1 functionality. Suppose calcBill() and deliveryOrder() were in same class and we needed to change either the bill calculation logic or food delivery logic, in either cases the class will be affected
 
-Open-Close Principle
+								2. Open-Close Principle
 The principle states that software entities like class, modules, functions, etc.; should be able to extend a class behavior without modifying it. 
 This principle believes that “ do not change the well-tested code every time requirements change” . Any changes in a code can lead to some unexpected errors in the future. A code that was working til yesterday can throw errors tomorrow.
 
@@ -187,7 +246,7 @@ public static void main(String[] args) {
 }
 
 
-We has to change code of AddVolume class to accommodate new Changes. Let’s see how that could be done with Open-close principle
+We had to change code of AddVolume class to accommodate new Changes. Let’s see how that could be done with Open-close principle
 
 Public interface GeoShape
 {
@@ -260,7 +319,7 @@ public static void main(String[] args) {
 }
 
 
-Liskov’s Substitution Principle: 
+							Liskov’s Substitution Principle: 
 
 according to this principle “Derived or child classes must be substitutable for their base or parent classes“. This principle ensures that any class that is the child of a parent class should be usable in place of its parent without any unexpected behavior.
 
@@ -293,7 +352,7 @@ public class Ostrich extends Bird{
 } 
 
 
-4. Interface Segregation Principle: 
+							4. Interface Segregation Principle: 
 
 This principle is the first principle that applies to Interfaces instead of classes
 It states that “do not force any client to implement an interface which is irrelevant to them“.Rather break down a fat interface with many implementations into n small interfaces with 1 implementation each
